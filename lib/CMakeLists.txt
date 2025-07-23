@@ -51,8 +51,13 @@ collector_list (_deps PROJECT_LIB_DEPS)
 
 foreach (f ${_headers})
   configure_file (${f} include/${PROJECT_NAME}/${f} @ONLY)
-  install (FILES ${CMAKE_CURRENT_BINARY_DIR}/include/${PROJECT_NAME}/${f}
+  if (QNX)
+    install (FILES ${CMAKE_CURRENT_BINARY_DIR}/include/${PROJECT_NAME}/${f}
+           DESTINATION ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_INCLUDEDIR} RENAME ${PROJECT_NAME}/${f})
+  else()
+    install (FILES ${CMAKE_CURRENT_BINARY_DIR}/include/${PROJECT_NAME}/${f}
            DESTINATION include RENAME ${PROJECT_NAME}/${f})
+  endif()
   if (${f} MATCHES "^[^/]*\\.h")
     collect (PROJECT_HDR_TESTS "metal/${f}")
   endif (${f} MATCHES "^[^/]*\\.h")

@@ -1,0 +1,21 @@
+/*
+ * Copyright (c) 2025, QNX Software Systems Limited
+
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+/*
+ * @file	qnx/condition.c
+ * @brief	QNX libmetal condition variable handling.
+ */
+
+#include <metal/condition.h>
+
+int metal_condition_wait(struct metal_condition *cv, metal_mutex_t *m)
+{
+	int ret = pthread_cond_wait(&cv->cond, m);
+  if (ret == EOK)
+    return 0;
+  return ret;
+}
