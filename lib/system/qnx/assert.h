@@ -19,7 +19,7 @@
 #include <assert.h>
 
 /**
- * @brief Assertion macro for bare-metal applications.
+ * @brief Assertion macro for QNX-based applications.
  * @param cond Condition to evaluate.
  */
 #define metal_sys_assert(cond) assert(cond)

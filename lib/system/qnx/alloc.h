@@ -5,7 +5,7 @@
  */
 
 /*
- * @file	qnx/alloc.c
+ * @file	qnx/alloc.h
  * @brief	QNX libmetal memory allocation definitions.
  */
 

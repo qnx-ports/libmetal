@@ -10,7 +10,7 @@
  */
 
 #ifndef __METAL_MUTEX__H__
-#error "Include metal/mutex.h instead of metal/generic/mutex.h"
+#error "Include metal/mutex.h instead of metal/qnx/mutex.h"
 #endif
 
 #ifndef __METAL_QNX_MUTEX__H__

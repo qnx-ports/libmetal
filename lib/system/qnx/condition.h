@@ -44,7 +44,7 @@ static inline int metal_condition_signal(struct metal_condition *cv)
   int ret = pthread_cond_signal(&cv->cond);
 	if (ret == EOK)
     return 0;
-  return ret;
+  return -ret;
 }
 
 static inline int metal_condition_broadcast(struct metal_condition *cv)
@@ -52,7 +52,7 @@ static inline int metal_condition_broadcast(struct metal_condition *cv)
 	int ret = pthread_cond_broadcast(&cv->cond);
   if (ret == EOK)
     return 0;
-  return ret;
+  return -ret;
 }
 
 

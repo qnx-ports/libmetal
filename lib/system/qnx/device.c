@@ -5,8 +5,8 @@
  */
 
 /*
- * @file	qnx/sys.h
- * @brief	QNX system primitives for libmetal.
+ * @file	qnx/device.c
+ * @brief	QNX libmetal device operations.
  */
 
 #include <metal/device.h>

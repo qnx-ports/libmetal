@@ -43,9 +43,9 @@ static int metal_shmem_try_map(int fd, size_t size, struct metal_io_region **res
 	}
 
 	ret = mlock(mem, size);
-	if (ret) {
+	if (ret == -1) {
 				metal_log(METAL_LOG_WARNING, "failed to mlock shmem - %s\n",
-			  strerror(-ret));
+			  strerror(errno));
 	}
 
 	phys_size = sizeof(*phys) * pages;

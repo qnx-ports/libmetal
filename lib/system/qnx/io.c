@@ -19,8 +19,8 @@ int metal_sys_io_mem_map(struct metal_io_region *io)
 	void *addr;
   int flags, prot;
 
-  flags = io->mem_flags | MAP_PHYS;
-  prot = PROT_READ | PROT_WRITE;
+  flags = (io->mem_flags & ~PROT_MASK) | MAP_PHYS;
+  prot = (io->mem_flags & PROT_MASK) | PROT_READ ;
   addr = mmap64(NULL, io->size, prot, flags, NOFD, *((off64_t *)io->physmap));
   if (addr == MAP_FAILED)
     return -errno;
