@@ -31,7 +31,7 @@ typedef pthread_mutex_t metal_mutex_t;
  * METAL_MUTEX_DEFINE - used for defining and initializing a global or
  * static singleton mutex
  */
-#define METAL_MUTEX_DEFINE(m) m = PTHREAD_MUTEX_INITIALIZER
+#define METAL_MUTEX_DEFINE(m) metal_mutex_t m = PTHREAD_MUTEX_INITIALIZER
 
 static inline void __metal_mutex_init(metal_mutex_t *mutex)
 {

@@ -33,7 +33,6 @@ struct metal_condition{
 */
 #define METAL_CONDITION_INIT { PTHREAD_COND_INITIALIZER }
 
-
 static inline void metal_condition_init(struct metal_condition *cv)
 {
 	(cv = cv);

@@ -18,7 +18,7 @@
 
 struct metal_state _metal;
 struct cache_ctrl __qnx_cache_control;
-struct metal_bus metal_generic_bus;
+static int GENERIC_BUS_REGISTER = 0;
 
 void metal_init_page_sizes()
 {
@@ -28,22 +28,7 @@ void metal_init_page_sizes()
 
 int metal_sys_init(const struct metal_init_params *params)
 {
-	FILE *urandom;
-	unsigned int seed;
   int ret;
-
-	/* Set random seed */
-  urandom = fopen("/dev/urandom", "r");
-	if (!urandom) {
-		metal_log(METAL_LOG_ERROR, "Failed to open /dev/urandom (%s)\n",
-			  strerror(errno));
-		return -errno;
-	}
-	if (fread(&seed, 1, sizeof(seed), urandom) <= 0) {
-		metal_log(METAL_LOG_DEBUG, "Failed fread /dev/urandom\n");
-	}
-	fclose(urandom);
-	srand(seed);
 
 	/* Initialize page size */
   metal_init_page_sizes();
@@ -51,8 +36,8 @@ int metal_sys_init(const struct metal_init_params *params)
 	/* Initialize IRQ */
 	ret = metal_qnx_irq_init();
 	if (ret != 0) {
-		metal_log(METAL_LOG_ERROR, "IRQ init failed\n",
-				strerror(-ret));
+		metal_log(METAL_LOG_ERROR, "irq init failed - %s\n",
+				strerror(ret));
 		return ret;
 	}
 
@@ -62,7 +47,7 @@ int metal_sys_init(const struct metal_init_params *params)
 
 	ret = cache_init(0, &__qnx_cache_control, NULL);
 	if (ret == -1) {
-		metal_log(METAL_LOG_ERROR, "Cache init failed\n",
+		metal_log(METAL_LOG_ERROR, "cache init failed - %s\n",
 				strerror(errno));
 		return -errno;
 	}
@@ -70,19 +55,14 @@ int metal_sys_init(const struct metal_init_params *params)
 	/* Initialize generic bus */
 	ret = metal_bus_register(&metal_generic_bus);
 	if (ret != 0) {
-		metal_log(METAL_LOG_DEBUG, "Generic bus init failed\n",
-				strerror(-errno));
+		metal_log(METAL_LOG_DEBUG, "generic bus init failed - %s\n",
+				strerror(errno));
 	}
+	else
+		GENERIC_BUS_REGISTER = 1;
 
 	metal_unused(params);
 
-	/* Set process pmap */
-  ret = open("/proc/self/pmap", O_RDONLY | O_CLOEXEC);
-  if (ret == -1) {
-    metal_log(METAL_LOG_DEBUG, "Failed pmap open - %s\n",
-				strerror(errno));
-  }
-  _metal.pagemap_fd = ret;
 
   return 0;
 }
@@ -91,6 +71,7 @@ void metal_sys_finish(void)
 {
 	cache_fini(&__qnx_cache_control);
 	metal_qnx_irq_shutdown();
-	metal_bus_unregister(&metal_generic_bus);
+	if (GENERIC_BUS_REGISTER)
+		metal_bus_unregister(&metal_generic_bus);
 }
 

@@ -14,9 +14,14 @@
 
 int metal_sys_io_mem_map(struct metal_io_region *io)
 {
+  if (io->virt != NULL)
+    return 0;
 	void *addr;
-  int flags = io->mem_flags | MAP_SHARED | MAP_PHYS;
-  addr = mmap(NULL, io->size, PROT_READ | PROT_WRITE, flags, NOFD, io->physmap);
+  int flags, prot;
+
+  flags = io->mem_flags | MAP_PHYS;
+  prot = PROT_READ | PROT_WRITE;
+  addr = mmap64(NULL, io->size, prot, flags, NOFD, *((off64_t *)io->physmap));
   if (addr == MAP_FAILED)
     return -errno;
 

@@ -37,12 +37,11 @@ extern "C" {
 #endif
 
 #define METAL_INVALID_VADDR     NULL
-#define MAX_PAGE_SHIFT 12
 
 #define metal_yield() metal_cpu_yield()
 
 #define __qnx_get_physical_address(addr, len) ({ \
-	off64_t qnx_offset = INT_MAX; \
+	off64_t qnx_offset = 0; \
 	metal_assert(mem_offset64(addr, NOFD, len, &qnx_offset, NULL) == 0); \
 	(qnx_offset); \
 })
@@ -60,9 +59,6 @@ struct metal_state {
 
 	/** system page shift. */
 	unsigned long		page_shift;
-
-	/** File descriptor for /proc/self/pmap (or -1). */
-	int			pagemap_fd;
 };
 
 #ifdef METAL_INTERNAL

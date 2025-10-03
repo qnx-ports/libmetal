@@ -56,7 +56,7 @@ int metal_open(const char *path, int shm)
 int metal_map(int fd, off_t offset, size_t size, int expand, int flags,
         void **result)
 {
-  int prot = PROT_READ | PROT_WRITE, error;
+  int prot = PROT_READ | PROT_WRITE, error = 0;
   void *mem;
 
   flags |= MAP_SHARED;
@@ -68,13 +68,10 @@ int metal_map(int fd, off_t offset, size_t size, int expand, int flags,
     off_t reqsize = offset + size;
     struct stat stat;
 
-    error = flock(fd, LOCK_EX) < 0 ? -errno : 0;
     if (!error)
       error = fstat(fd, &stat);
     if (!error && stat.st_size < reqsize)
       error = ftruncate(fd, reqsize);
-    if (!error)
-      flock(fd, LOCK_UN);
     if (error)
       return -errno;
   }
