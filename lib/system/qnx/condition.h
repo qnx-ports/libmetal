@@ -35,7 +35,6 @@ struct metal_condition{
 
 static inline void metal_condition_init(struct metal_condition *cv)
 {
-	(cv = cv);
 	metal_assert(pthread_cond_init(&cv->cond, NULL) == EOK);
 }
 

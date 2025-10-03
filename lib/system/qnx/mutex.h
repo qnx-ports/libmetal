@@ -35,13 +35,11 @@ typedef pthread_mutex_t metal_mutex_t;
 
 static inline void __metal_mutex_init(metal_mutex_t *mutex)
 {
-	(mutex = mutex);
   metal_assert(pthread_mutex_init(mutex, NULL) == EOK);
 }
 
 static inline void __metal_mutex_deinit(metal_mutex_t *mutex)
 {
-	(mutex = mutex);
 	metal_assert(pthread_mutex_destroy(mutex) == EOK);
 }
 
@@ -54,13 +52,11 @@ static inline int __metal_mutex_try_acquire(metal_mutex_t *mutex)
 
 static inline void __metal_mutex_acquire(metal_mutex_t *mutex)
 {
-	(mutex = mutex);
 	metal_assert(pthread_mutex_lock(mutex) == EOK);
 }
 
 static inline void __metal_mutex_release(metal_mutex_t *mutex)
 {
-	(mutex = mutex);
 	metal_assert(pthread_mutex_unlock(mutex) == EOK);
 }
 
