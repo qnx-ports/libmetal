@@ -9,33 +9,33 @@ static const int atomic_test_count = 1000;
 
 static void *atomic_thread(void *arg)
 {
-  atomic_int *c = arg;
-  int i;
+	atomic_int *c = arg;
+	int i;
 
-  for(i = 0; i < atomic_test_count; i++)
-    atomic_fetch_add(c, 1);
+	for(i = 0; i < atomic_test_count; ++i)
+		atomic_fetch_add(c, 1);
 
-  return NULL;
+	return NULL;
 }
 
 static int atomic(void)
 {
-  const int threads = 10;
-  atomic_int counter = ATOMIC_VAR_INIT(0);
-  int value, error;
+	const int threads = 10;
+	atomic_int counter = ATOMIC_VAR_INIT(0);
+	int value, error;
 
-  error = metal_run(threads, atomic_thread, &counter);
-  if (!error) {
-    value = atomic_load(&counter);
-    value -= atomic_test_count * threads;
-    if (value) {
-      metal_log(METAL_LOG_DEBUG, "counter mismatch, delta = %d\n",
-          value);
-      error = -EINVAL;
-    }
-  }
+	error = metal_run(threads, atomic_thread, &counter);
+	if (!error) {
+		value = atomic_load(&counter);
+		value -= atomic_test_count * threads;
+		if (value) {
+			metal_log(METAL_LOG_DEBUG, "counter mismatch, delta = %d\n",
+					value);
+			error = -EINVAL;
+		}
+	}
 
-  return error;
+	return error;
 }
 
 METAL_ADD_TEST(atomic);

@@ -2,9 +2,9 @@
 
 int main(void)
 {
-  int status;
+	int status;
 
-  status = metal_tests_run(NULL);
+	status = metal_tests_run(NULL);
 
-  return status;
+	return status;
 }

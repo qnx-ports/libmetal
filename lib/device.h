@@ -155,7 +155,6 @@ metal_device_io_region(struct metal_device *device, unsigned int index)
 
 #ifdef METAL_INTERNAL
 int metal_generic_dev_sys_open(struct metal_device *dev);
-int metal_generic_dev_sys_close(struct metal_device *dev);
 int metal_generic_dev_open(struct metal_bus *bus, const char *dev_name,
 			   struct metal_device **device);
 int metal_generic_dev_dma_map(struct metal_bus *bus,

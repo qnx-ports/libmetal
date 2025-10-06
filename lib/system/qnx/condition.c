@@ -15,7 +15,5 @@
 int metal_condition_wait(struct metal_condition *cv, metal_mutex_t *m)
 {
 	int ret = pthread_cond_wait(&cv->cond, m);
-  if (ret == EOK)
-    return 0;
-  return -ret;
+  return (ret == EOK) ? 0 : -ret;
 }

@@ -44,8 +44,8 @@ static int metal_shmem_try_map(int fd, size_t size, struct metal_io_region **res
 
 	ret = mlock(mem, size);
 	if (ret == -1) {
-				metal_log(METAL_LOG_WARNING, "failed to mlock shmem - %s\n",
-			  strerror(errno));
+		metal_log(METAL_LOG_WARNING, "failed to mlock shmem - %s\n",
+		strerror(errno));
 	}
 
 	phys_size = sizeof(*phys) * pages;
@@ -61,7 +61,7 @@ static int metal_shmem_try_map(int fd, size_t size, struct metal_io_region **res
 		return -ENOMEM;
 	}
 
-	for (virt = mem, page = 0; page < pages; page++) {
+	for (virt = mem, page = 0; page < pages; ++page) {
 		size_t offset = page * _metal.page_size;
 
 		ret = mem_offset64(virt + offset, NOFD, size, (off64_t *)&phys[page], NULL);
@@ -85,7 +85,7 @@ int metal_shmem_open(const char *name, size_t size,
 		return ret;
 
 	ret = metal_open(name, 1);
-	if (!ret) {
+	if (ret < 0) {
 		metal_log(METAL_LOG_ERROR, "failed to open %s\n shmem", name);
 		return ret;
 	}
@@ -94,6 +94,7 @@ int metal_shmem_open(const char *name, size_t size,
 	ret = metal_shmem_try_map(fd, size, result);
 	if (ret) {
 		metal_log(METAL_LOG_ERROR, "failed to map %s shmem\n", name);
+		return ret;
 	}
 
 	close(fd);

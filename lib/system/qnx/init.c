@@ -28,10 +28,10 @@ static void metal_init_page_sizes(void)
 
 int metal_sys_init(const struct metal_init_params *params)
 {
-  int ret;
+	int ret;
 
 	/* Initialize page size */
-  metal_init_page_sizes();
+	metal_init_page_sizes();
 
 	/* Initialize IRQ */
 	ret = metal_qnx_irq_init();
@@ -49,7 +49,7 @@ int metal_sys_init(const struct metal_init_params *params)
 	if (ret == -1) {
 		metal_log(METAL_LOG_ERROR, "cache init failed - %s\n",
 				strerror(errno));
-		return ret;
+		return -errno;
 	}
 
 	/* Initialize generic bus */
@@ -58,20 +58,21 @@ int metal_sys_init(const struct metal_init_params *params)
 		metal_log(METAL_LOG_DEBUG, "generic bus init failed - %s\n",
 				strerror(-ret));
 	}
-	else
+	else {
 		GENERIC_BUS_REGISTER = 1;
+	}
 
 	metal_unused(params);
 
-
-  return 0;
+	return 0;
 }
 
 void metal_sys_finish(void)
 {
 	cache_fini(&__qnx_cache_control);
 	metal_qnx_irq_shutdown();
-	if (GENERIC_BUS_REGISTER)
+	if (GENERIC_BUS_REGISTER) {
 		metal_bus_unregister(&metal_generic_bus);
+	}
 }
 

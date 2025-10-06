@@ -25,15 +25,15 @@
 */
 int metal_open(const char *path, int shm)
 {
-  const int flags = O_RDWR | O_CREAT | O_CLOEXEC;
-  const int mode = S_IRUSR | S_IWUSR;
-  int fd;
+	const int flags = O_RDWR | O_CREAT | O_CLOEXEC;
+	const int mode = S_IRUSR | S_IWUSR;
+	int fd;
 
-  if (!path || !strlen(path))
-    return -EINVAL;
+	if (!path || !strlen(path))
+		return -EINVAL;
 
-  fd = shm ? shm_open(path, flags, mode) : open(path, flags, mode);
-  return fd < 0 ? -errno : fd;
+	fd = shm ? shm_open(path, flags, mode) : open(path, flags, mode);
+	return fd == -1 ? -errno : fd;
 }
 
 /**
@@ -56,31 +56,31 @@ int metal_open(const char *path, int shm)
 int metal_map(int fd, off_t offset, size_t size, int expand, int flags,
         void **result)
 {
-  int prot = PROT_READ | PROT_WRITE, error = 0;
-  void *mem;
+	int prot = PROT_READ | PROT_WRITE, error = 0;
+	void *mem;
 
-  flags |= MAP_SHARED;
+	flags |= MAP_SHARED;
 
-  if (fd < 0) {
-    fd = -1;
-    flags = MAP_PRIVATE | MAP_ANONYMOUS;
-  } else if (expand) {
-    off_t reqsize = offset + size;
-    struct stat stat;
+	if (fd < 0) {
+		fd = NOFD;
+		flags = MAP_PRIVATE | MAP_ANON;
+	} else if (expand) {
+		off_t reqsize = offset + size;
+		struct stat stat;
 
-    if (!error)
-      error = fstat(fd, &stat);
-    if (!error && stat.st_size < reqsize)
-      error = ftruncate(fd, reqsize);
-    if (error)
-      return -errno;
+		if (!error)
+			error = fstat(fd, &stat);
+		if (!error && stat.st_size < reqsize)
+			error = ftruncate(fd, reqsize);
+		if (error)
+			return -errno;
   }
 
-  mem = mmap(NULL, size, prot, flags, fd, offset);
-  if (mem == MAP_FAILED)
-    return -errno;
-  *result = mem;
-  return 0;
+	mem = mmap(NULL, size, prot, flags, fd, offset);
+	if (mem == MAP_FAILED)
+		return -errno;
+	*result = mem;
+	return 0;
 }
 
 /**
@@ -94,5 +94,5 @@ int metal_map(int fd, off_t offset, size_t size, int expand, int flags,
 */
 int metal_unmap(void *mem, size_t size)
 {
-  return munmap(mem, size) < 0 ? -errno : 0;
+	return munmap(mem, size) != 0 ? -errno : 0;
 }

@@ -35,7 +35,7 @@ typedef pthread_mutex_t metal_mutex_t;
 
 static inline void __metal_mutex_init(metal_mutex_t *mutex)
 {
-  metal_assert(pthread_mutex_init(mutex, NULL) == EOK);
+	metal_assert(pthread_mutex_init(mutex, NULL) == EOK);
 }
 
 static inline void __metal_mutex_deinit(metal_mutex_t *mutex)
@@ -45,9 +45,8 @@ static inline void __metal_mutex_deinit(metal_mutex_t *mutex)
 
 static inline int __metal_mutex_try_acquire(metal_mutex_t *mutex)
 {
-  if (pthread_mutex_trylock(mutex) != EOK)
-    return 0;
-  return 1;
+	int ret = pthread_mutex_trylock(mutex);
+	return (ret != EOK) ? 0 : 1;
 }
 
 static inline void __metal_mutex_acquire(metal_mutex_t *mutex)
@@ -62,9 +61,8 @@ static inline void __metal_mutex_release(metal_mutex_t *mutex)
 
 static inline int __metal_mutex_is_acquired(metal_mutex_t *mutex)
 {
-	if (pthread_mutex_trylock(mutex) == EBUSY)
-		return 1;
-	return 0;
+	int ret = pthread_mutex_trylock(mutex);
+	return (ret == EBUSY) ? 1 : 0;
 }
 
 #ifdef __cplusplus
