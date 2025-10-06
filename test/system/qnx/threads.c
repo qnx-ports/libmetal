@@ -37,7 +37,7 @@ int metal_run_noblock(int threads, metal_thread_t child,
 	}
 
 	*threads_out = i;
-	return error;
+	return -error;
 }
 
 void metal_finish_threads(int threads, void *tids)

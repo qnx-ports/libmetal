@@ -37,7 +37,7 @@ int metal_sys_init(const struct metal_init_params *params)
 	ret = metal_qnx_irq_init();
 	if (ret != 0) {
 		metal_log(METAL_LOG_ERROR, "irq init failed - %s\n",
-				strerror(-ret));
+			  strerror(-ret));
 		return ret;
 	}
 
@@ -48,7 +48,7 @@ int metal_sys_init(const struct metal_init_params *params)
 	ret = cache_init(0, &__qnx_cache_control, NULL);
 	if (ret == -1) {
 		metal_log(METAL_LOG_ERROR, "cache init failed - %s\n",
-				strerror(errno));
+			  strerror(errno));
 		return -errno;
 	}
 
@@ -56,7 +56,7 @@ int metal_sys_init(const struct metal_init_params *params)
 	ret = metal_bus_register(&metal_generic_bus);
 	if (ret != 0) {
 		metal_log(METAL_LOG_DEBUG, "generic bus init failed - %s\n",
-				strerror(-ret));
+			  strerror(-ret));
 	}
 	else {
 		GENERIC_BUS_REGISTER = 1;

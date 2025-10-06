@@ -75,7 +75,7 @@ static void metal_qnx_irq_set_enable(struct metal_irq_controller *irq_cntr,
 	if (irq < irq_cntr->irq_base ||
 			irq >= irq_cntr->irq_base + irq_cntr->irq_num) {
 		metal_log(METAL_LOG_ERROR, "%s: invalid irq %d\n",
-				__func__, irq);
+			  __func__, irq);
 		return;
 	}
 
@@ -85,22 +85,22 @@ static void metal_qnx_irq_set_enable(struct metal_irq_controller *irq_cntr,
 		irqs_ids[irq] = InterruptAttachEvent(irq, &event,_NTO_INTR_FLAGS_NO_UNMASK);
 		if (irqs_ids[irq] == -1) {
 			metal_log(METAL_LOG_ERROR,
-					"%s: unable to enable irq %d\n", __func__, irq);
+				  "%s: unable to enable irq %d\n", __func__, irq);
 		}
 	} else if (state == METAL_IRQ_DISABLE) {
 		if (irqs_ids[irq] == -1) {
 			metal_log(METAL_LOG_ERROR,
-					"%s: request to disable irq %d which is not enabled\n",
-					__func__, irq);
+				  "%s: request to disable irq %d which is not enabled\n",
+				  __func__, irq);
 		} else if (InterruptDetach(irqs_ids[irq]) == -1) {
 			metal_log(METAL_LOG_ERROR,
-					"%s: unable to disable irq %d\n",
-					__func__, irq);
+				  "%s: unable to disable irq %d\n",
+				  __func__, irq);
 		}
 	} else {
 		metal_log(METAL_LOG_ERROR,
-				"%s: unknown requested interrupt state %d for irq %d\n",
-				__func__, state, irq);
+			  "%s: unknown requested interrupt state %d for irq %d\n",
+			  __func__, state, irq);
 	}
 }
 
@@ -120,7 +120,7 @@ static void *metal_qnx_irq_handling(void *args)
 		if (rcvid == -1) {
 			if (!irq_handling_stop) {
 				metal_log(METAL_LOG_ERROR,
-						"MsgReceivePulse failed: %s\n", strerror(errno));
+					  "MsgReceivePulse failed: %s\n", strerror(errno));
 			}
 			break;
 		}
@@ -132,7 +132,7 @@ static void *metal_qnx_irq_handling(void *args)
 
 		if (msg.code != INTR_PULSE_CODE) {
 			metal_log(METAL_LOG_WARNING,
-					"Unhandled pulse code: %d\n", msg.code);
+				  "Unhandled pulse code: %d\n", msg.code);
 			continue;
 		}
 
@@ -141,27 +141,27 @@ static void *metal_qnx_irq_handling(void *args)
 
 		if (irq_id != -1) {
 			metal_log(METAL_LOG_DEBUG,
-					"Received interrupt on vector %d (0x%.4hX)\n",
-					irq, (uint16_t)irq);
+				  "Received interrupt on vector %d (0x%.4hX)\n",
+				  irq, (uint16_t)irq);
 
 			/* call handler for received irq if enabled */
 			if (metal_irq_handle(&irqs[irq], irq) != METAL_IRQ_HANDLED) {
 				metal_log(METAL_LOG_WARNING,
-						"IRQ %d (0x%.4hX) unhandled\n",
-						irq, (uint16_t)irq);
+					  "IRQ %d (0x%.4hX) unhandled\n",
+					  irq, (uint16_t)irq);
 			}
 
 			/* enable receiving of new interrupts */
       int ret = __QNX__ < 800 ? InterruptUnmask(irq, irq_id) : InterruptUnmask(0, irq_id);
 			if (ret == -1) {
 				metal_log(METAL_LOG_ERROR,
-						"Unable to unmask the interrupt %d (0x%.4hX)\n",
-						irq, (uint16_t)irq);
+					  "Unable to unmask the interrupt %d (0x%.4hX)\n",
+					  irq, (uint16_t)irq);
 			}
 		} else {
 			metal_log(METAL_LOG_ERROR,
-					"Received interrupt on unregistered vector %d (0x%.4hX)\n",
-					irq, (uint16_t)irq);
+				  "Received interrupt on unregistered vector %d (0x%.4hX)\n",
+				  irq, (uint16_t)irq);
 		}
 	}
 
@@ -185,16 +185,16 @@ int metal_qnx_irq_init(void)
 	chid = ChannelCreate(_NTO_CHF_DISCONNECT | _NTO_CHF_UNBLOCK);
 	if (chid == -1) {
 		metal_log(METAL_LOG_ERROR,
-				"Unable to create channel: chid %d: %s\n",
-				chid, strerror(errno));
+			  "Unable to create channel: chid %d: %s\n",
+			  chid, strerror(errno));
 		return -EAGAIN;
 	}
 
 	self_coid = ConnectAttach(0, 0, chid, _NTO_SIDE_CHANNEL, _NTO_COF_CLOEXEC);
 	if (self_coid == -1) {
 		metal_log(METAL_LOG_ERROR,
-				"Unable to attach connection: coid %d: %s\n",
-				self_coid, strerror(errno));
+			  "Unable to attach connection: coid %d: %s\n",
+			  self_coid, strerror(errno));
 		return -EAGAIN;
 	}
 
@@ -202,14 +202,14 @@ int metal_qnx_irq_init(void)
 	ret = metal_irq_register_controller(&qnx_irq_cntr);
 	if (ret < 0) {
 		metal_log(METAL_LOG_ERROR,
-				"QNX IRQ controller failed to register.\n");
+			  "QNX IRQ controller failed to register.\n");
 		return -EINVAL;
 	}
 
 	ret = pthread_create(&irq_pthread, NULL, metal_qnx_irq_handling, NULL);
 	if (ret != EOK) {
 		metal_log(METAL_LOG_ERROR, "Failed to create IRQ thread: %d.\n",
-				ret);
+			  ret);
 		return -EAGAIN;
 	}
 
@@ -232,8 +232,8 @@ void metal_qnx_irq_shutdown(void)
 			ret = InterruptDetach(irqs_ids[irq]);
 			if (ret == -1) {
 				metal_log(METAL_LOG_ERROR,
-						"Unable to detach connection: coid %d: %s\n",
-						self_coid, strerror(errno));
+					  "Unable to detach connection: coid %d: %s\n",
+					  self_coid, strerror(errno));
 			}
 		}
 	}
@@ -241,13 +241,13 @@ void metal_qnx_irq_shutdown(void)
 	ret = ChannelDestroy(chid);
 	if (ret == -1) {
 		metal_log(METAL_LOG_ERROR,
-				"Failed to destroy channel: chid %d: %s\n",
-				chid, strerror(errno));
+			  "Failed to destroy channel: chid %d: %s\n",
+			  chid, strerror(errno));
 	}
 
 	ret = pthread_join(irq_pthread, NULL);
 	if (ret != EOK) {
 		metal_log(METAL_LOG_ERROR,
-				"Failed to join IRQ thread: %d.\n", ret);
+			  "Failed to join IRQ thread: %d.\n", ret);
 	}
 }

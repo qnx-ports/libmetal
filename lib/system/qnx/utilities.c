@@ -74,7 +74,7 @@ int metal_map(int fd, off_t offset, size_t size, int expand, int flags,
 			error = ftruncate(fd, reqsize);
 		if (error)
 			return -errno;
-  }
+	}
 
 	mem = mmap(NULL, size, prot, flags, fd, offset);
 	if (mem == MAP_FAILED)

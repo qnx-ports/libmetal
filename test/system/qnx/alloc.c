@@ -11,7 +11,7 @@ static int alloc(void)
 	ptr = metal_allocate_memory(400);
 	if (!ptr) {
 		metal_log(METAL_LOG_DEBUG, "failed to allocate memory\n");
-		return errno;
+		return -errno;
 	}
 
 	metal_free_memory(ptr);
