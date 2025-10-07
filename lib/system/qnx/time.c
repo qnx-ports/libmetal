@@ -17,6 +17,7 @@
 unsigned long long metal_get_timestamp(void)
 {
 	unsigned long long time = 0;
+
 	struct timespec ts;
 	if (clock_gettime(CLOCK_MONOTONIC, &ts) == -1) {
 		metal_log(METAL_LOG_ERROR, "%s failed!\n", __func__);

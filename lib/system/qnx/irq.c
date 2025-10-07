@@ -48,7 +48,7 @@ static int irqs_ids[MAX_IRQS]; /* QNX registered IRQs IDs array */
 
 /* Static functions */
 static void metal_qnx_irq_set_enable(struct metal_irq_controller *irq_cntr,
-							int irq, unsigned int state);
+					int irq, unsigned int state);
 
 /* QNX IRQ controller */
 static METAL_IRQ_CONTROLLER_DECLARE(qnx_irq_cntr,
@@ -70,10 +70,10 @@ void metal_irq_restore_enable(unsigned int flags)
 }
 
 static void metal_qnx_irq_set_enable(struct metal_irq_controller *irq_cntr,
-							int irq, unsigned int state)
+					int irq, unsigned int state)
 {
 	if (irq < irq_cntr->irq_base ||
-		irq >= irq_cntr->irq_base + irq_cntr->irq_num) {
+	  irq >= irq_cntr->irq_base + irq_cntr->irq_num) {
 		metal_log(METAL_LOG_ERROR, "%s: invalid irq %d\n",
 			  __func__, irq);
 		return;
@@ -155,6 +155,7 @@ static void *metal_qnx_irq_handling(void *args)
 
 			/* enable receiving of new interrupts */
 			int ret = __QNX__ < 800 ? InterruptUnmask(irq, irq_id) : InterruptUnmask(0, irq_id);
+
 			if (ret == -1) {
 				metal_log(METAL_LOG_ERROR,
 					  "Unable to unmask the interrupt %d (0x%.4hX)\n",

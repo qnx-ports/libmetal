@@ -33,8 +33,8 @@ static int irq(void)
 	for (i = 0; i < 2; i++) {
 		tst_irq[i] = BASE + i;
 		metal_log(METAL_LOG_DEBUG, "%s: %d interrupt associated with irq %d\n",
-				__func__, i, tst_irq[i]);
-  }
+			__func__, i, tst_irq[i]);
+	}
 
 	ret = metal_irq_register(tst_irq[0], irq_handler, (void *)1);
 	if (ret) {
@@ -60,7 +60,7 @@ out:
 	metal_set_log_level(mll);
 	if ((err_msg[0] != '\0') && !ret)
 		ret = -EINVAL;
-	if (ret) 
+	if (ret)
 		metal_log(METAL_LOG_DEBUG, "%s", err_msg);
 	return ret;
 }

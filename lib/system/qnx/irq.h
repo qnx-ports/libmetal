@@ -5,9 +5,9 @@
  */
 
 /*
-* @file	qnx/irq.h
-* @brief	QNX libmetal irq definitions.
-*/
+ * @file	qnx/irq.h
+ * @brief	QNX libmetal irq definitions.
+ */
 
 #ifndef __METAL_IRQ__H__
 #error "Include metal/irq.h instead of metal/qnx/irq.h"

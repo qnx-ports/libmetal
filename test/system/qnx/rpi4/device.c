@@ -52,14 +52,14 @@ static int device(void)
 	error = metal_register_generic_device(shm_dev);
 	if (error) {
 		metal_log(METAL_LOG_DEBUG, "device registration failed - %s\n",
-				strerror(-error));
+			strerror(-error));
 		return error;
 	}
 
 	error = metal_device_open("generic", "shmram", &shm_dev);
 	if (error) {
 		metal_log(METAL_LOG_DEBUG, "device opening failed - %s\n",
-				strerror(-errno));
+			strerror(-errno));
 		return error;
 	}
 
