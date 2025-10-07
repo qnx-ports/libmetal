@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2025, BlackBerry Limited. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
 #include <metal/sys.h>
 #include <pthread.h>
 #include <string.h>

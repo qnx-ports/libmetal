@@ -1,8 +1,8 @@
 /*
- * Copyright (c) 2025, QNX Software Systems Limited
-*
-* SPDX-License-Identifier: BSD-3-Clause
-*/
+ * Copyright (c) 2025, BlackBerry Limited. All rights reserved.
+ *
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
 
 /**
  * @file	qnx/irq.c

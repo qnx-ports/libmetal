@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025, QNX Software Systems Limited
+ * Copyright (c) 2025, BlackBerry Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
