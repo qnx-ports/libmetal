@@ -5,24 +5,24 @@
  */
 
 /*
-* @file	utilities.c
-* @brief	QNX libmetal utility functions.
-*/
+ * @file	utilities.c
+ * @brief	QNX libmetal utility functions.
+ */
 
 #include <metal/utilities.h>
 #include <metal/sys.h>
 #include <string.h>
 
 /**
-* @brief	Open (or create) a file.
-*
-* This function opens or creates a file with read/write permissions and the
-* O_CLOEXEC flag set.
-*
-* @param[in]	path	File path to open.
-* @param[in]	shm	Open shared memory (via shm_open) if non-zero.
-* @return	File descriptor.
-*/
+ * @brief	Open (or create) a file.
+ *
+ * This function opens or creates a file with read/write permissions and the
+ * O_CLOEXEC flag set.
+ *
+ * @param[in]	path	File path to open.
+ * @param[in]	shm	Open shared memory (via shm_open) if non-zero.
+ * @return	File descriptor.
+ */
 int metal_open(const char *path, int shm)
 {
 	const int flags = O_RDWR | O_CREAT | O_CLOEXEC;
@@ -37,24 +37,24 @@ int metal_open(const char *path, int shm)
 }
 
 /**
-* @brief	Map a segment of a file/device.
-*
-* This function maps a segment of a file or device into the process address
-* space, after optionally expanding the file if necessary.  If required, the
-* file is expanded to hold the requested map area.  This is done under and
-* advisory lock, and therefore the called must not have an advisory lock on
-* the file being mmapped.
-*
-* @param[in]	fd	File descriptor to map.
-* @param[in]	offset	Offset in file to map.
-* @param[in]	size	Size of region to map.
-* @param[in]	expand	Allow file expansion via ftruncate if non-zero.
-* @param[in]	flags	Flags for mmap(), MAP_SHARED included implicitly.
-* @param[out]	result	Returned pointer to new memory map.
-* @return	0 on success, or -errno on error.
-*/
+ * @brief	Map a segment of a file/device.
+ *
+ * This function maps a segment of a file or device into the process address
+ * space, after optionally expanding the file if necessary.  If required, the
+ * file is expanded to hold the requested map area.  This is done under and
+ * advisory lock, and therefore the called must not have an advisory lock on
+ * the file being mmapped.
+ *
+ * @param[in]	fd	File descriptor to map.
+ * @param[in]	offset	Offset in file to map.
+ * @param[in]	size	Size of region to map.
+ * @param[in]	expand	Allow file expansion via ftruncate if non-zero.
+ * @param[in]	flags	Flags for mmap(), MAP_SHARED included implicitly.
+ * @param[out]	result	Returned pointer to new memory map.
+ * @return	0 on success, or -errno on error.
+ */
 int metal_map(int fd, off_t offset, size_t size, int expand, int flags,
-        void **result)
+				void **result)
 {
 	int prot = PROT_READ | PROT_WRITE, error = 0;
 	void *mem;
@@ -84,14 +84,14 @@ int metal_map(int fd, off_t offset, size_t size, int expand, int flags,
 }
 
 /**
-* @brief	Unmap a segment of the process address space.
-*
-* This function unmaps a segment of the process address space.
-*
-* @param[in]	mem	Segment to unmap.
-* @param[in]	size	Size of region to unmap.
-* @return	0 on success, or -errno on error.
-*/
+ * @brief	Unmap a segment of the process address space.
+ *
+ * This function unmaps a segment of the process address space.
+ *
+ * @param[in]	mem	Segment to unmap.
+ * @param[in]	size	Size of region to unmap.
+ * @return	0 on success, or -errno on error.
+ */
 int metal_unmap(void *mem, size_t size)
 {
 	return munmap(mem, size) != 0 ? -errno : 0;

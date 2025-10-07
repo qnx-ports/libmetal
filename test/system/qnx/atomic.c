@@ -18,7 +18,7 @@ static void *atomic_thread(void *arg)
 	atomic_int *c = arg;
 	int i;
 
-	for(i = 0; i < atomic_test_count; ++i)
+	for (i = 0; i < atomic_test_count; ++i)
 		atomic_fetch_add(c, 1);
 
 	return NULL;
@@ -36,7 +36,7 @@ static int atomic(void)
 		value -= atomic_test_count * threads;
 		if (value) {
 			metal_log(METAL_LOG_DEBUG, "counter mismatch, delta = %d\n",
-					value);
+				value);
 			error = -EINVAL;
 		}
 	}

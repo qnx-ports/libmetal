@@ -46,6 +46,7 @@ static void *producer_thread(void *arg)
 
 	return NULL;
 }
+
 static int condition(void)
 {
 	int ret;
@@ -58,7 +59,7 @@ static int condition(void)
 				&ts_created);
 	if (ret < 0) {
 		metal_log(METAL_LOG_ERROR, "Failed to create consumer thread: %d.\n",
-				ret);
+			  ret);
 		goto out;
 	}
 
@@ -66,7 +67,7 @@ static int condition(void)
 	ret = metal_run(THREADS, producer_thread, NULL);
 	if (ret < 0) {
 		metal_log(METAL_LOG_ERROR, "Failed to create producer thread: %d.\n",
-				ret);
+			  ret);
 		goto out;
 	}
 
@@ -79,7 +80,7 @@ static int condition(void)
 				&ts_created);
 	if (ret < 0) {
 		metal_log(METAL_LOG_ERROR, "Failed to create consumer thread: %d.\n",
-				ret);
+			  ret);
 		goto out;
 	}
 
@@ -87,7 +88,7 @@ static int condition(void)
 	ret = metal_run(THREADS, consumer_thread, NULL);
 	if (ret < 0) {
 		metal_log(METAL_LOG_ERROR, "Failed to create producer thread: %d.\n",
-				ret);
+			  ret);
 		goto out;
 	}
 
@@ -96,4 +97,5 @@ out:
 	metal_finish_threads(THREADS, (void *)tids);
 	return ret;
 }
+
 METAL_ADD_TEST(condition);

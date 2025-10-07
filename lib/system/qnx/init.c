@@ -18,7 +18,7 @@
 
 struct metal_state _metal;
 struct cache_ctrl __qnx_cache_control;
-static int GENERIC_BUS_REGISTER = 0;
+static int GENERIC_BUS_REGISTER;
 
 static void metal_init_page_sizes(void)
 {
@@ -57,8 +57,7 @@ int metal_sys_init(const struct metal_init_params *params)
 	if (ret != 0) {
 		metal_log(METAL_LOG_DEBUG, "generic bus init failed - %s\n",
 			  strerror(-ret));
-	}
-	else {
+	} else {
 		GENERIC_BUS_REGISTER = 1;
 	}
 

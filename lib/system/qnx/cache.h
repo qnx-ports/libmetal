@@ -30,12 +30,14 @@ extern struct cache_ctrl __qnx_cache_control;
 
 static inline void __metal_cache_flush(void *addr, unsigned int len)
 {
-	CACHE_FLUSH(&__qnx_cache_control, addr, (uint64_t)__qnx_get_physical_address(addr, len), len);
+	CACHE_FLUSH(&__qnx_cache_control, addr, \
+			(uint64_t)__qnx_get_physical_address(addr, len), len);
 }
 
 static inline void __metal_cache_invalidate(void *addr, unsigned int len)
 {
-	CACHE_INVAL(&__qnx_cache_control, addr, (uint64_t)__qnx_get_physical_address(addr, len), len);
+	CACHE_INVAL(&__qnx_cache_control, addr, \
+			(uint64_t)__qnx_get_physical_address(addr, len), len);
 }
 
 #ifdef __cplusplus

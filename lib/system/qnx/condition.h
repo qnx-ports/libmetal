@@ -29,8 +29,8 @@ struct metal_condition {
 };
 
 /*
-  METAL_CONDITION_INIT - static metal condition variable initialization
-*/
+ * METAL_CONDITION_INIT - static metal condition variable initialization
+ */
 #define METAL_CONDITION_INIT { PTHREAD_COND_INITIALIZER }
 
 static inline void metal_condition_init(struct metal_condition *cv)
@@ -41,15 +41,16 @@ static inline void metal_condition_init(struct metal_condition *cv)
 static inline int metal_condition_signal(struct metal_condition *cv)
 {
 	int ret = pthread_cond_signal(&cv->cond);
+
 	return (ret == EOK) ? 0 : -ret;
 }
 
 static inline int metal_condition_broadcast(struct metal_condition *cv)
 {
 	int ret = pthread_cond_broadcast(&cv->cond);
+
 	return (ret == EOK) ? 0 : -ret;
 }
-
 
 #ifdef __cplusplus
 }

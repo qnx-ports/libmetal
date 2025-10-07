@@ -11,14 +11,14 @@
 #include <metal/spinlock.h>
 
 static const int spinlock_test_count = 1000;
-static unsigned int total = 0;
+static unsigned int total;
 
 static void *spinlock_thread(void *arg)
 {
 	struct metal_spinlock *l = arg;
 	int i;
 
-	for(i = 0; i < spinlock_test_count; ++i) {
+	for (i = 0; i < spinlock_test_count; ++i) {
 		metal_spinlock_acquire(l);
 		total++;
 		metal_spinlock_release(l);
@@ -39,7 +39,7 @@ static int spinlock(void)
 		value -= spinlock_test_count * threads;
 		if (value) {
 			metal_log(METAL_LOG_DEBUG, "counter mismatch, detla = %d\n",
-					value);
+				  value);
 			error = -EINVAL;
 		}
 	}

@@ -30,7 +30,7 @@
 
 #define MAX_IRQS	1024  /* maximum number of irqs */
 
-#define INTR_PULSE_CODE (_PULSE_CODE_MINAVAIL+0)
+#define INTR_PULSE_CODE _PULSE_CODE_MINAVAIL
 
 #define INTR_PRIORITY SIGEV_PULSE_PRIO_INHERIT
 
@@ -48,14 +48,14 @@ static int irqs_ids[MAX_IRQS]; /* QNX registered IRQs IDs array */
 
 /* Static functions */
 static void metal_qnx_irq_set_enable(struct metal_irq_controller *irq_cntr,
-              int irq, unsigned int state);
+							int irq, unsigned int state);
 
 /* QNX IRQ controller */
 static METAL_IRQ_CONTROLLER_DECLARE(qnx_irq_cntr,
-            0, MAX_IRQS,
-            NULL,
-            metal_qnx_irq_set_enable, NULL,
-            irqs);
+						0, MAX_IRQS,
+						NULL,
+						metal_qnx_irq_set_enable, NULL,
+						irqs);
 
 unsigned int metal_irq_save_disable(void)
 {
@@ -70,10 +70,10 @@ void metal_irq_restore_enable(unsigned int flags)
 }
 
 static void metal_qnx_irq_set_enable(struct metal_irq_controller *irq_cntr,
-              int irq, unsigned int state)
+							int irq, unsigned int state)
 {
 	if (irq < irq_cntr->irq_base ||
-			irq >= irq_cntr->irq_base + irq_cntr->irq_num) {
+		irq >= irq_cntr->irq_base + irq_cntr->irq_num) {
 		metal_log(METAL_LOG_ERROR, "%s: invalid irq %d\n",
 			  __func__, irq);
 		return;
@@ -81,8 +81,9 @@ static void metal_qnx_irq_set_enable(struct metal_irq_controller *irq_cntr,
 
 	if (state == METAL_IRQ_ENABLE) {
 		struct sigevent event;
+
 		SIGEV_PULSE_INIT(&event, self_coid, INTR_PRIORITY, INTR_PULSE_CODE, irq);
-		irqs_ids[irq] = InterruptAttachEvent(irq, &event,_NTO_INTR_FLAGS_NO_UNMASK);
+		irqs_ids[irq] = InterruptAttachEvent(irq, &event, _NTO_INTR_FLAGS_NO_UNMASK);
 		if (irqs_ids[irq] == -1) {
 			metal_log(METAL_LOG_ERROR,
 				  "%s: unable to enable irq %d\n", __func__, irq);
@@ -105,16 +106,17 @@ static void metal_qnx_irq_set_enable(struct metal_irq_controller *irq_cntr,
 }
 
 /**
-* @brief       IRQ handler
-* @param[in]   args  not used. required for pthread.
-*/
+ * @brief       IRQ handler
+ * @param[in]   args  not used. required for pthread.
+ */
 static void *metal_qnx_irq_handling(void *args)
 {
 	struct _pulse msg;
+
 	metal_unused(args);
 
 	while (1) {
-		// block here waiting for interrupt pulse
+		/* block here waiting for interrupt pulse */
 		int rcvid = MsgReceivePulse(chid, &msg, sizeof(msg), NULL);
 
 		if (rcvid == -1) {
@@ -152,7 +154,7 @@ static void *metal_qnx_irq_handling(void *args)
 			}
 
 			/* enable receiving of new interrupts */
-      int ret = __QNX__ < 800 ? InterruptUnmask(irq, irq_id) : InterruptUnmask(0, irq_id);
+			int ret = __QNX__ < 800 ? InterruptUnmask(irq, irq_id) : InterruptUnmask(0, irq_id);
 			if (ret == -1) {
 				metal_log(METAL_LOG_ERROR,
 					  "Unable to unmask the interrupt %d (0x%.4hX)\n",
@@ -169,9 +171,9 @@ static void *metal_qnx_irq_handling(void *args)
 }
 
 /**
-* @brief irq handling initialization
-* @return 0 on success, non-zero on failure
-*/
+ * @brief irq handling initialization
+ * @return 0 on success, non-zero on failure
+ */
 int metal_qnx_irq_init(void)
 {
 	int ret;
@@ -217,8 +219,8 @@ int metal_qnx_irq_init(void)
 }
 
 /**
-* @brief irq handling shutdown
-*/
+ * @brief irq handling shutdown
+ */
 void metal_qnx_irq_shutdown(void)
 {
 	int ret;

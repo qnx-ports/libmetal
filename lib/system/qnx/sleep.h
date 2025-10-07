@@ -27,6 +27,7 @@ extern "C" {
 static inline int __metal_sleep_usec(unsigned int usec)
 {
 	struct timespec ts;
+
 	ts.tv_sec = 0;
 	ts.tv_nsec = usec * NS_PER_US;
 	return nanosleep(&ts, NULL);

@@ -15,7 +15,6 @@
 #include <metal/list.h>
 #define BASE 1000
 
-
 static int irq_handler(int irq, void *arg)
 {
 	(void)irq;
@@ -41,8 +40,8 @@ static int irq(void)
 	if (ret) {
 		err_msg = "register irq 0 fail drv_id\n";
 		goto out;
-  }
-	ret = metal_irq_register(tst_irq[1], irq_handler, (void *) 1);
+	}
+	ret = metal_irq_register(tst_irq[1], irq_handler, (void *)1);
 	if (ret) {
 		err_msg = "register irq 1 fail drv_id\n";
 		goto out;
@@ -59,9 +58,10 @@ static int irq(void)
 
 out:
 	metal_set_log_level(mll);
-	if ((err_msg[0] != '\0') && (!ret))
+	if ((err_msg[0] != '\0') && !ret)
 		ret = -EINVAL;
-	if (ret) metal_log(METAL_LOG_DEBUG, "%s", err_msg);
+	if (ret) 
+		metal_log(METAL_LOG_DEBUG, "%s", err_msg);
 	return ret;
 }
 

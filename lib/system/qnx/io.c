@@ -14,7 +14,7 @@
 
 int metal_sys_io_mem_map(struct metal_io_region *io)
 {
-	if (io->virt != NULL)
+	if (io->virt)
 		return 0;
 
 	void *addr;
@@ -33,7 +33,9 @@ int metal_sys_io_mem_map(struct metal_io_region *io)
 int metal_sys_io_mem_unmap(struct metal_io_region *io)
 {
 	int ret;
-	if (io->virt == NULL) return 0;
+
+	if (!io->virt)
+		return 0;
 
 	ret = munmap(io->virt, io->size);
 	if (ret != 0)

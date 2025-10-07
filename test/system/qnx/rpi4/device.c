@@ -21,7 +21,7 @@ const metal_phys_addr_t shm_phys = {
 };
 
 static struct metal_device metal_dev_table[] = {
-  {
+	{
 		/* Shared memory device */
 		.name = "shmram",
 		.bus = NULL,
@@ -61,18 +61,18 @@ static int device(void)
 		metal_log(METAL_LOG_DEBUG, "device opening failed - %s\n",
 				strerror(-errno));
 		return error;
-  }
+	}
 
 	io = metal_device_io_region(shm_dev, 0);
 	if (!io) {
 		metal_device_close(shm_dev);
 		return -ENODEV;
-  }
+	}
 
 	idcode = metal_io_read32(io, 0);
 	if (idcode != EXPECTED_ID) {
 		metal_log(METAL_LOG_DEBUG, "Read id code %d but expected %d\n",
-				idcode, EXPECTED_ID);
+			  idcode, EXPECTED_ID);
   }
 
 	metal_device_close(shm_dev);
