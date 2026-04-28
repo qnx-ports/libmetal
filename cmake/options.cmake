@@ -71,7 +71,11 @@ option (WITH_FUNC_LINE_LOG "Log with function name, line number prefix" OFF)
 
 option (WITH_DOC "Build with documentation" ON)
 
+if (QNX)
+set_property (GLOBAL PROPERTY "PROJECT_EC_FLAGS" -Wall -Wextra)
+else (QNX)
 set_property (GLOBAL PROPERTY "PROJECT_EC_FLAGS" -Wall -Werror -Wextra)
+endif (QNX)
 
 if (NOT DEFINED PROJECT_VENDOR)
 set (PROJECT_VENDOR "none")
