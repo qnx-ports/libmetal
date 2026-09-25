@@ -14,11 +14,11 @@
 
 int metal_sys_io_mem_map(struct metal_io_region *io)
 {
-	if (io->virt)
-		return 0;
-
 	void *addr;
 	int flags, prot;
+
+	if (io->virt)
+		return 0;
 
 	flags = (io->mem_flags & ~PROT_MASK) | MAP_PHYS;
 	prot = (io->mem_flags & PROT_MASK) | PROT_READ | PROT_WRITE | PROT_NOCACHE;

@@ -18,15 +18,12 @@
 
 #include <stdlib.h>
 #include <sys/mman.h>
-#include <sys/cache.h>
 #include <metal/assert.h>
 #include <metal/sys.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-extern struct cache_ctrl __qnx_cache_control;
 
 static inline void __metal_cache_flush(void *addr, unsigned int len)
 {

@@ -25,6 +25,6 @@ unsigned long long metal_get_timestamp(void)
 	}
 	time = ts.tv_sec * NS_PER_S;
 	time += ts.tv_nsec;
-	return 0;
+	return time;
 }
 

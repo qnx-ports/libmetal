@@ -40,12 +40,6 @@ extern "C" {
 
 #define metal_yield() metal_cpu_yield()
 
-#define __qnx_get_physical_address(addr, len) ({ \
-	off64_t qnx_offset = 0; \
-	metal_assert(mem_offset64(addr, NOFD, len, &qnx_offset, NULL) == 0); \
-	(qnx_offset); \
-})
-
 struct metal_device;
 
 /** Structure of qnx specific libmetal runtime state. */

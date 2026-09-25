@@ -63,8 +63,11 @@ static inline void __metal_mutex_release(metal_mutex_t *mutex)
 static inline int __metal_mutex_is_acquired(metal_mutex_t *mutex)
 {
 	int ret = pthread_mutex_trylock(mutex);
-
-	return (ret == EBUSY) ? 1 : 0;
+	if (ret == EOK) {
+        pthread_mutex_unlock(mutex);
+        return 0;
+    }
+    return 1;
 }
 
 #ifdef __cplusplus
