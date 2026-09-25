@@ -50,14 +50,14 @@ static METAL_MUTEX_DEFINE(irq_lock); /* Mutex to protect irqs_ids and critical s
 
 /* Static functions */
 static void metal_qnx_irq_set_enable(struct metal_irq_controller *irq_cntr,
-					int irq, unsigned int state);
+									 int irq, unsigned int state);
 
 /* QNX IRQ controller */
 static METAL_IRQ_CONTROLLER_DECLARE(qnx_irq_cntr,
-						0, MAX_IRQS,
-						NULL,
-						metal_qnx_irq_set_enable, NULL,
-						irqs);
+									0, MAX_IRQS,
+									NULL,
+									metal_qnx_irq_set_enable, NULL,
+									irqs);
 
 unsigned int metal_irq_save_disable(void)
 {
@@ -76,7 +76,7 @@ void metal_irq_restore_enable(unsigned int flags)
 }
 
 static void metal_qnx_irq_set_enable(struct metal_irq_controller *irq_cntr,
-					int irq, unsigned int state)
+									 int irq, unsigned int state)
 {
 	if (irq < irq_cntr->irq_base ||
 	  irq >= irq_cntr->irq_base + irq_cntr->irq_num) {
@@ -167,7 +167,8 @@ static void *metal_qnx_irq_handling(void *args)
 			}
 
 			/* enable receiving of new interrupts */
-			int ret = __QNX__ < 800 ? InterruptUnmask(irq, irq_id) : InterruptUnmask(0, irq_id);
+			int ret = __QNX__ < 800 ? InterruptUnmask(irq, irq_id)
+													  : InterruptUnmask(0, irq_id);
 
 			if (ret == -1) {
 				metal_log(METAL_LOG_ERROR,

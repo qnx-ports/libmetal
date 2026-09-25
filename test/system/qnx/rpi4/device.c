@@ -52,14 +52,14 @@ static int device(void)
 	error = metal_register_generic_device(shm_dev);
 	if (error) {
 		metal_log(METAL_LOG_DEBUG, "device registration failed - %s\n",
-			strerror(-error));
+				  strerror(-error));
 		return error;
 	}
 
 	error = metal_device_open("generic", "shmram", &shm_dev);
 	if (error) {
 		metal_log(METAL_LOG_DEBUG, "device opening failed - %s\n",
-			strerror(-errno));
+				  strerror(-errno));
 		return error;
 	}
 
@@ -72,8 +72,8 @@ static int device(void)
 	idcode = metal_io_read32(io, 0);
 	if (idcode != EXPECTED_ID) {
 		metal_log(METAL_LOG_DEBUG, "Read id code %d but expected %d\n",
-			  idcode, EXPECTED_ID);
-  }
+			  	  idcode, EXPECTED_ID);
+	}
 
 	metal_device_close(shm_dev);
 
