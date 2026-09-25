@@ -26,7 +26,7 @@
 int metal_open(const char *path, int shm)
 {
 	const int flags = O_RDWR | O_CREAT | O_CLOEXEC;
-	const int mode = S_IRUSR | S_IWUSR;
+	const int mode = 0600;
 	int fd;
 
 	if (!path || !strlen(path))
@@ -54,7 +54,7 @@ int metal_open(const char *path, int shm)
  * @return	0 on success, or -errno on error.
  */
 int metal_map(int fd, off_t offset, size_t size, int expand, int flags,
-				void **result)
+			  void **result)
 {
 	int prot = PROT_READ | PROT_WRITE, error = 0;
 	void *mem;

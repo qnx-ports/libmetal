@@ -46,31 +46,37 @@ static struct metal_irq irqs[MAX_IRQS]; /* QNX IRQs array */
 
 static int irqs_ids[MAX_IRQS]; /* QNX registered IRQs IDs array */
 
+static METAL_MUTEX_DEFINE(irq_lock); /* Mutex to protect irqs_ids and critical sections */
+
 /* Static functions */
 static void metal_qnx_irq_set_enable(struct metal_irq_controller *irq_cntr,
-					int irq, unsigned int state);
+									 int irq, unsigned int state);
 
 /* QNX IRQ controller */
 static METAL_IRQ_CONTROLLER_DECLARE(qnx_irq_cntr,
-						0, MAX_IRQS,
-						NULL,
-						metal_qnx_irq_set_enable, NULL,
-						irqs);
+									0, MAX_IRQS,
+									NULL,
+									metal_qnx_irq_set_enable, NULL,
+									irqs);
 
 unsigned int metal_irq_save_disable(void)
 {
-	InterruptDisable();
+	/* Avoid deadlock if called from within the ISR thread itself */
+	if (pthread_self() == irq_pthread)
+		return 0;
+	metal_mutex_acquire(&irq_lock);
 	return 0;
 }
 
 void metal_irq_restore_enable(unsigned int flags)
 {
-	InterruptEnable();
+	if (pthread_self() != irq_pthread)
+		metal_mutex_release(&irq_lock);
 	metal_unused(flags);
 }
 
 static void metal_qnx_irq_set_enable(struct metal_irq_controller *irq_cntr,
-					int irq, unsigned int state)
+									 int irq, unsigned int state)
 {
 	if (irq < irq_cntr->irq_base ||
 	  irq >= irq_cntr->irq_base + irq_cntr->irq_num) {
@@ -83,12 +89,15 @@ static void metal_qnx_irq_set_enable(struct metal_irq_controller *irq_cntr,
 		struct sigevent event;
 
 		SIGEV_PULSE_INIT(&event, self_coid, INTR_PRIORITY, INTR_PULSE_CODE, irq);
+		metal_mutex_acquire(&irq_lock);
 		irqs_ids[irq] = InterruptAttachEvent(irq, &event, _NTO_INTR_FLAGS_NO_UNMASK);
 		if (irqs_ids[irq] == -1) {
 			metal_log(METAL_LOG_ERROR,
 				  "%s: unable to enable irq %d\n", __func__, irq);
 		}
+		metal_mutex_release(&irq_lock);
 	} else if (state == METAL_IRQ_DISABLE) {
+		metal_mutex_acquire(&irq_lock);
 		if (irqs_ids[irq] == -1) {
 			metal_log(METAL_LOG_ERROR,
 				  "%s: request to disable irq %d which is not enabled\n",
@@ -97,7 +106,10 @@ static void metal_qnx_irq_set_enable(struct metal_irq_controller *irq_cntr,
 			metal_log(METAL_LOG_ERROR,
 				  "%s: unable to disable irq %d\n",
 				  __func__, irq);
+		} else {
+			irqs_ids[irq] = -1;
 		}
+		metal_mutex_release(&irq_lock);
 	} else {
 		metal_log(METAL_LOG_ERROR,
 			  "%s: unknown requested interrupt state %d for irq %d\n",
@@ -139,6 +151,7 @@ static void *metal_qnx_irq_handling(void *args)
 		}
 
 		int irq = msg.value.sival_int;
+		metal_mutex_acquire(&irq_lock);
 		int irq_id = irqs_ids[irq];
 
 		if (irq_id != -1) {
@@ -154,7 +167,8 @@ static void *metal_qnx_irq_handling(void *args)
 			}
 
 			/* enable receiving of new interrupts */
-			int ret = __QNX__ < 800 ? InterruptUnmask(irq, irq_id) : InterruptUnmask(0, irq_id);
+			int ret = __QNX__ < 800 ? InterruptUnmask(irq, irq_id)
+													  : InterruptUnmask(0, irq_id);
 
 			if (ret == -1) {
 				metal_log(METAL_LOG_ERROR,
@@ -166,6 +180,7 @@ static void *metal_qnx_irq_handling(void *args)
 				  "Received interrupt on unregistered vector %d (0x%.4hX)\n",
 				  irq, (uint16_t)irq);
 		}
+		metal_mutex_release(&irq_lock);
 	}
 
 	return NULL;
@@ -179,6 +194,7 @@ int metal_qnx_irq_init(void)
 {
 	int ret;
 
+	metal_mutex_init(&irq_lock);
 	memset(&irqs, 0, sizeof(irqs));
 
 	for (int i = 0; i < MAX_IRQS; i++) {
@@ -241,6 +257,13 @@ void metal_qnx_irq_shutdown(void)
 		}
 	}
 
+	ret = ConnectDetach(self_coid);
+	if (ret == -1) {
+		metal_log(METAL_LOG_ERROR,
+			  "Failed to destroy connection: self_coid %d: %s\n",
+			  self_coid, strerror(errno));
+	}
+
 	ret = ChannelDestroy(chid);
 	if (ret == -1) {
 		metal_log(METAL_LOG_ERROR,
@@ -253,4 +276,6 @@ void metal_qnx_irq_shutdown(void)
 		metal_log(METAL_LOG_ERROR,
 			  "Failed to join IRQ thread: %d.\n", ret);
 	}
+
+	metal_mutex_deinit(&irq_lock);
 }

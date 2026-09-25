@@ -18,7 +18,6 @@
 
 #include <stdlib.h>
 #include <sys/mman.h>
-#include <sys/cache.h>
 #include <metal/assert.h>
 #include <metal/sys.h>
 
@@ -26,16 +25,14 @@
 extern "C" {
 #endif
 
-extern struct cache_ctrl __qnx_cache_control;
-
 static inline void __metal_cache_flush(void *addr, unsigned int len)
 {
-	CACHE_FLUSH(&__qnx_cache_control, addr, (uint64_t)__qnx_get_physical_address(addr, len), len);
+	msync(addr, len, MS_CACHE_ONLY | MS_SYNC);
 }
 
 static inline void __metal_cache_invalidate(void *addr, unsigned int len)
 {
-	CACHE_INVAL(&__qnx_cache_control, addr, (uint64_t)__qnx_get_physical_address(addr, len), len);
+	msync(addr, len, MS_CACHE_ONLY | MS_INVALIDATE);
 }
 
 #ifdef __cplusplus

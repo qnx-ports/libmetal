@@ -28,8 +28,8 @@ static inline int __metal_sleep_usec(unsigned int usec)
 {
 	struct timespec ts;
 
-	ts.tv_sec = 0;
-	ts.tv_nsec = usec * NS_PER_US;
+	ts.tv_sec = usec / 1000000;
+	ts.tv_nsec = (usec % 1000000) * 1000;
 	return nanosleep(&ts, NULL);
 }
 

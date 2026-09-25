@@ -19,7 +19,6 @@
 #include "irq.h"
 
 struct metal_state _metal;
-struct cache_ctrl __qnx_cache_control;
 static int GENERIC_BUS_REGISTER;
 
 static void metal_init_page_sizes(void)
@@ -32,6 +31,9 @@ int metal_sys_init(const struct metal_init_params *params)
 {
 	int ret;
 
+	/* mark params as unused */
+	metal_unused(params);
+
 	/* Initialize page size */
 	metal_init_page_sizes();
 
@@ -43,17 +45,6 @@ int metal_sys_init(const struct metal_init_params *params)
 		return ret;
 	}
 
-	/* Initialize cache */
-	memset(&__qnx_cache_control, 0, sizeof(__qnx_cache_control));
-	__qnx_cache_control.fd = NOFD;
-
-	ret = cache_init(0, &__qnx_cache_control, NULL);
-	if (ret == -1) {
-		metal_log(METAL_LOG_ERROR, "cache init failed - %s\n",
-			  strerror(errno));
-		return -errno;
-	}
-
 	/* Initialize generic bus */
 	ret = metal_bus_register(&metal_generic_bus);
 	if (ret != 0) {
@@ -63,14 +54,11 @@ int metal_sys_init(const struct metal_init_params *params)
 		GENERIC_BUS_REGISTER = 1;
 	}
 
-	metal_unused(params);
-
 	return 0;
 }
 
 void metal_sys_finish(void)
 {
-	cache_fini(&__qnx_cache_control);
 	metal_qnx_irq_shutdown();
 	if (GENERIC_BUS_REGISTER) {
 		metal_bus_unregister(&metal_generic_bus);

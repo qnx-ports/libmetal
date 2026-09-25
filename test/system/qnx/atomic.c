@@ -36,7 +36,7 @@ static int atomic(void)
 		value -= atomic_test_count * threads;
 		if (value) {
 			metal_log(METAL_LOG_DEBUG, "counter mismatch, delta = %d\n",
-				value);
+					  value);
 			error = -EINVAL;
 		}
 	}

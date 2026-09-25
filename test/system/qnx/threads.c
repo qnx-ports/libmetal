@@ -22,7 +22,7 @@ int metal_run(int threads, metal_thread_t child, void *arg)
 }
 
 int metal_run_noblock(int threads, metal_thread_t child,
-			void *arg, void *tids, int *threads_out)
+					  void *arg, void *tids, int *threads_out)
 {
 	int error, i;
 	pthread_t *tid_p = (pthread_t *)tids;
@@ -37,7 +37,7 @@ int metal_run_noblock(int threads, metal_thread_t child,
 		error = pthread_create(&tid_p[i], NULL, child, arg);
 		if (error != EOK) {
 			metal_log(METAL_LOG_ERROR, "failed to create thread - %s\n",
-				strerror(error));
+					  strerror(error));
 			break;
 		}
 	}
