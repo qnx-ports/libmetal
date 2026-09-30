@@ -5,33 +5,32 @@
  */
 
 /**
- * @file	qnx/log.h
- * @brief	QNX libmetal log handler definition.
+ * @file	qnx/log.c
+ * @brief	QNX libmetal log handler.
  */
 
-#ifndef __METAL_METAL_LOG__H__
-#error "Include metal/log.h instead of metal/qnx/log.h"
-#endif
+#include <stdarg.h>
+#include <syslog.h>
+#include <metal/log.h>
 
-#ifndef __METAL_QNX_LOG__H__
-#define __METAL_QNX_LOG__H__
+void metal_qnx_log_handler(enum metal_log_level level, const char *format, ...)
+{
+	int syslog_level;
+	va_list args;
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+	switch (level) {
+	case METAL_LOG_EMERGENCY: syslog_level = LOG_EMERG; break;
+	case METAL_LOG_ALERT:     syslog_level = LOG_ALERT; break;
+	case METAL_LOG_CRITICAL:  syslog_level = LOG_CRIT; break;
+	case METAL_LOG_ERROR:     syslog_level = LOG_ERR; break;
+	case METAL_LOG_WARNING:   syslog_level = LOG_WARNING; break;
+	case METAL_LOG_NOTICE:    syslog_level = LOG_NOTICE; break;
+	case METAL_LOG_INFO:      syslog_level = LOG_INFO; break;
+	case METAL_LOG_DEBUG:
+	default:                  syslog_level = LOG_DEBUG; break;
+	}
 
-enum metal_log_level;
-
-/**
- * @brief QNX libmetal log handler.
- *
- * @param[in] level log level
- * @param[in] format format string
- */
-void metal_qnx_log_handler(enum metal_log_level level, const char *format, ...);
-
-#ifdef __cplusplus
+	va_start(args, format);
+	vsyslog(syslog_level, format, args);
+	va_end(args);
 }
-#endif
-
-#endif /* __METAL_QNX_LOG__H__ */

@@ -22,19 +22,24 @@ static const struct metal_io_ops metal_shmem_io_ops = {
 	NULL, NULL, NULL, NULL, NULL, metal_shmem_io_close, NULL, NULL
 };
 
-static int metal_shmem_try_map(int fd, size_t size, struct metal_io_region **result)
+static int metal_shmem_map_contiguous(int fd, size_t size, struct metal_io_region **result)
 {
-	size_t pages, page, phys_size;
 	struct metal_io_region *io;
 	metal_phys_addr_t *phys;
 	void *mem;
-	uint32_t *virt;
 	int ret;
 
 	size = metal_align_up(size, _metal.page_size);
-	pages = size / _metal.page_size;
 
-	ret = metal_map(fd, 0, size, 1, 0, &mem);
+	ret = shm_ctl(fd, SHMCTL_ANON | SHMCTL_PHYS, 0, size);
+	if (ret == -1 && errno != EBUSY) {
+		metal_log(METAL_LOG_ERROR,
+				  "failed to make shmem contiguous - %s\n",
+				  strerror(errno));
+		return -errno;
+	}
+
+	ret = metal_map(fd, 0, size, 0, 0, &mem);
 	if (ret) {
 		metal_log(METAL_LOG_WARNING,
 			  "failed to mmap shmem %ld - %s\n",
@@ -42,36 +47,24 @@ static int metal_shmem_try_map(int fd, size_t size, struct metal_io_region **res
 		return ret;
 	}
 
-	ret = mlock(mem, size);
-	if (ret == -1) {
-		metal_log(METAL_LOG_WARNING, "failed to mlock shmem - %s\n",
-				  strerror(errno));
-	}
-
-	phys_size = sizeof(*phys) * pages;
-	phys = malloc(phys_size);
-	if (!phys) {
-		metal_unmap(mem, size);
-		return -ENOMEM;
-	}
+	phys = malloc(sizeof(*phys));
 	io = malloc(sizeof(*io));
-	if (!io) {
+	if (!phys || !io) {
 		free(phys);
+		free(io);
 		metal_unmap(mem, size);
 		return -ENOMEM;
 	}
 
-	for (virt = mem, page = 0; page < pages; ++page) {
-		size_t offset = page * _metal.page_size;
+	ret = mem_offset64(mem, NOFD, size, (off64_t *)phys, NULL);
+	if (ret)
+		*phys = METAL_BAD_OFFSET;
 
-		ret = mem_offset64(virt + offset, NOFD, size, (off64_t *)&phys[page], NULL);
-		if (ret) {
-			phys[page] = METAL_BAD_OFFSET;
-		}
-	}
-	metal_io_init(io, mem, phys, size, _metal.page_shift, 0,
+	metal_io_init(io, mem, phys, size, (unsigned int)-1, 0,
 				  &metal_shmem_io_ops);
-	*result = io;
+	if (result != NULL) {
+		*result = io;
+	}
 
 	return 0;
 }
@@ -92,9 +85,10 @@ int metal_shmem_open(const char *name, size_t size,
 	}
 	fd = ret;
 
-	ret = metal_shmem_try_map(fd, size, result);
+	ret = metal_shmem_map_contiguous(fd, size, result);
 	if (ret) {
 		metal_log(METAL_LOG_ERROR, "failed to map %s shmem\n", name);
+		close(fd);
 		return ret;
 	}
 

@@ -23,6 +23,7 @@ unsigned long long metal_get_timestamp(void)
 		metal_log(METAL_LOG_ERROR, "%s failed!\n", __func__);
 		return time;
 	}
+
 	time = ts.tv_sec * NS_PER_S;
 	time += ts.tv_nsec;
 	return time;

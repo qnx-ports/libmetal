@@ -34,7 +34,7 @@ static int mutex(void)
 
 	metal_mutex_init(&lock);
 
-	error = metal_run(threads, mutex_thread, &lock);
+	error = metal_test_run(threads, mutex_thread, &lock);
 
 	metal_mutex_deinit(&lock);
 
