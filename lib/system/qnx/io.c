@@ -1,10 +1,10 @@
 /*
- * Copyright (c) 2025, BlackBerry Limited. All rights reserved.
+ * Copyright (c) 2026, BlackBerry Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-/*
+/**
  * @file	qnx/io.c
  * @brief	QNX libmetal io operations.
  */
@@ -14,14 +14,14 @@
 
 int metal_sys_io_mem_map(struct metal_io_region *io)
 {
-	if (io->virt)
-		return 0;
-
 	void *addr;
 	int flags, prot;
 
+	if (io->virt)
+		return 0;
+
 	flags = (io->mem_flags & ~PROT_MASK) | MAP_PHYS;
-	prot = (io->mem_flags & PROT_MASK) | PROT_READ | PROT_WRITE;
+	prot = (io->mem_flags & PROT_MASK) | PROT_READ | PROT_WRITE | PROT_NOCACHE;
 	addr = mmap64(NULL, io->size, prot, flags, NOFD, *((off64_t *)io->physmap));
 	if (addr == MAP_FAILED)
 		return -errno;

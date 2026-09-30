@@ -1,10 +1,10 @@
 /*
- * Copyright (c) 2025, BlackBerry Limited. All rights reserved.
+ * Copyright (c) 2026, BlackBerry Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-/*
+/**
  * @file	qnx/sleep.h
  * @brief	QNX sleep primitives for libmetal.
  */
@@ -28,8 +28,8 @@ static inline int __metal_sleep_usec(unsigned int usec)
 {
 	struct timespec ts;
 
-	ts.tv_sec = 0;
-	ts.tv_nsec = usec * NS_PER_US;
+	ts.tv_sec = usec / 1000000;
+	ts.tv_nsec = (usec % 1000000) * 1000;
 	return nanosleep(&ts, NULL);
 }
 
