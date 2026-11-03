@@ -64,10 +64,10 @@ static inline int __metal_mutex_is_acquired(metal_mutex_t *mutex)
 {
 	int ret = pthread_mutex_trylock(mutex);
 	if (ret == EOK) {
-        pthread_mutex_unlock(mutex);
-        return 0;
-    }
-    return 1;
+		pthread_mutex_unlock(mutex);
+		return 0;
+	}
+	return 1;
 }
 
 #ifdef __cplusplus

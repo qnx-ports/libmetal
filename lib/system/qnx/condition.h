@@ -40,14 +40,24 @@ static inline void metal_condition_init(struct metal_condition *cv)
 
 static inline int metal_condition_signal(struct metal_condition *cv)
 {
-	int ret = pthread_cond_signal(&cv->cond);
+	int ret;
+
+	if (!cv)
+		return -EINVAL;
+
+	ret = pthread_cond_signal(&cv->cond);
 
 	return (ret == EOK) ? 0 : -ret;
 }
 
 static inline int metal_condition_broadcast(struct metal_condition *cv)
 {
-	int ret = pthread_cond_broadcast(&cv->cond);
+	int ret;
+
+	if (!cv)
+		return -EINVAL;
+
+	ret = pthread_cond_broadcast(&cv->cond);
 
 	return (ret == EOK) ? 0 : -ret;
 }

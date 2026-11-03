@@ -26,17 +26,27 @@ static int metal_shmem_map_contiguous(int fd, size_t size, struct metal_io_regio
 {
 	struct metal_io_region *io;
 	metal_phys_addr_t *phys;
+	struct stat stat;
 	void *mem;
 	int ret;
 
 	size = metal_align_up(size, _metal.page_size);
 
-	ret = shm_ctl(fd, SHMCTL_ANON | SHMCTL_PHYS, 0, size);
-	if (ret == -1 && errno != EBUSY) {
+	if (fstat(fd, &stat) != 0) {
 		metal_log(METAL_LOG_ERROR,
+			  "failed to stat shmem fd - %s\n",
+			  strerror(errno));
+		return -errno;
+	}
+
+	if (stat.st_size == 0) {
+		ret = shm_ctl(fd, SHMCTL_ANON | SHMCTL_PHYS, 0, size);
+		if (ret == -1 && errno != EBUSY) {
+			metal_log(METAL_LOG_ERROR,
 				  "failed to make shmem contiguous - %s\n",
 				  strerror(errno));
-		return -errno;
+			return -errno;
+		}
 	}
 
 	ret = metal_map(fd, 0, size, 0, 0, &mem);
@@ -64,6 +74,9 @@ static int metal_shmem_map_contiguous(int fd, size_t size, struct metal_io_regio
 				  &metal_shmem_io_ops);
 	if (result != NULL) {
 		*result = io;
+	} else {
+		metal_io_finish(io);
+		free(io);
 	}
 
 	return 0;
@@ -74,13 +87,16 @@ int metal_shmem_open(const char *name, size_t size,
 {
 	int ret, fd;
 
+	if (!name || !strlen(name) || !size)
+		return -EINVAL;
+
 	ret = metal_shmem_open_generic(name, size, result);
 	if (ret != -ENOENT)
 		return ret;
 
 	ret = metal_open(name, 1);
 	if (ret < 0) {
-		metal_log(METAL_LOG_ERROR, "failed to open %s\n shmem", name);
+		metal_log(METAL_LOG_ERROR, "failed to open %s shmem\n", name);
 		return ret;
 	}
 	fd = ret;

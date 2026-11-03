@@ -20,8 +20,6 @@
 extern "C" {
 #endif
 
-enum metal_log_level;
-
 /**
  * @brief QNX libmetal log handler.
  *

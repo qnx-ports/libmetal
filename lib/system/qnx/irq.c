@@ -20,12 +20,9 @@
 #include <metal/utilities.h>
 #include <metal/alloc.h>
 #include <sys/neutrino.h>
-#include <sys/time.h>
-#include <sched.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
-#include <poll.h>
 #include <unistd.h>
 
 #define MAX_IRQS	1024  /* maximum number of irqs */
@@ -46,7 +43,7 @@ static struct metal_irq irqs[MAX_IRQS]; /* QNX IRQs array */
 
 static int irqs_ids[MAX_IRQS]; /* QNX registered IRQs IDs array */
 
-static METAL_MUTEX_DEFINE(irq_lock); /* Mutex to protect irqs_ids and critical sections */
+static metal_mutex_t irq_lock; /* Mutex to protect irqs_ids and critical sections */
 
 /* Static functions */
 static void metal_qnx_irq_set_enable(struct metal_irq_controller *irq_cntr,
@@ -90,7 +87,9 @@ static void metal_qnx_irq_set_enable(struct metal_irq_controller *irq_cntr,
 
 		SIGEV_PULSE_INIT(&event, self_coid, INTR_PRIORITY, INTR_PULSE_CODE, irq);
 		metal_mutex_acquire(&irq_lock);
-		irqs_ids[irq] = InterruptAttachEvent(irq, &event, _NTO_INTR_FLAGS_NO_UNMASK);
+		if (irqs_ids[irq] == -1) {
+			irqs_ids[irq] = InterruptAttachEvent(irq, &event, 0);
+		}
 		if (irqs_ids[irq] == -1) {
 			metal_log(METAL_LOG_ERROR,
 				  "%s: unable to enable irq %d\n", __func__, irq);
@@ -206,7 +205,8 @@ int metal_qnx_irq_init(void)
 		metal_log(METAL_LOG_ERROR,
 			  "Unable to create channel: chid %d: %s\n",
 			  chid, strerror(errno));
-		return -EAGAIN;
+		ret = -EAGAIN;
+		goto err_mutex;
 	}
 
 	self_coid = ConnectAttach(0, 0, chid, _NTO_SIDE_CHANNEL, _NTO_COF_CLOEXEC);
@@ -214,7 +214,8 @@ int metal_qnx_irq_init(void)
 		metal_log(METAL_LOG_ERROR,
 			  "Unable to attach connection: coid %d: %s\n",
 			  self_coid, strerror(errno));
-		return -EAGAIN;
+		ret = -EAGAIN;
+		goto err_chid;
 	}
 
 	irq_handling_stop = false;
@@ -222,17 +223,27 @@ int metal_qnx_irq_init(void)
 	if (ret < 0) {
 		metal_log(METAL_LOG_ERROR,
 			  "QNX IRQ controller failed to register.\n");
-		return -EINVAL;
+		ret = -EINVAL;
+		goto err_coid;
 	}
 
 	ret = pthread_create(&irq_pthread, NULL, metal_qnx_irq_handling, NULL);
 	if (ret != EOK) {
 		metal_log(METAL_LOG_ERROR, "Failed to create IRQ thread: %d.\n",
 			  ret);
-		return -EAGAIN;
+		ret = -EAGAIN;
+		goto err_coid;
 	}
 
 	return 0;
+
+err_coid:
+	ConnectDetach(self_coid);
+err_chid:
+	ChannelDestroy(chid);
+err_mutex:
+	metal_mutex_deinit(&irq_lock);
+	return ret;
 }
 
 /**
@@ -244,6 +255,7 @@ void metal_qnx_irq_shutdown(void)
 
 	metal_log(METAL_LOG_DEBUG, "%s\n", __func__);
 
+	metal_mutex_acquire(&irq_lock);
 	irq_handling_stop = true;
 
 	for (int irq = 0; irq < MAX_IRQS; irq++) {
@@ -251,11 +263,14 @@ void metal_qnx_irq_shutdown(void)
 			ret = InterruptDetach(irqs_ids[irq]);
 			if (ret == -1) {
 				metal_log(METAL_LOG_ERROR,
-					  "Unable to detach connection: coid %d: %s\n",
-					  self_coid, strerror(errno));
+					  "Unable to detach interrupt %d (id %d): %s\n",
+					  irq, irqs_ids[irq], strerror(errno));
+			} else {
+				irqs_ids[irq] = -1;
 			}
 		}
 	}
+	metal_mutex_release(&irq_lock);
 
 	ret = ConnectDetach(self_coid);
 	if (ret == -1) {

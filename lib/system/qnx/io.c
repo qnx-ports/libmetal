@@ -20,9 +20,12 @@ int metal_sys_io_mem_map(struct metal_io_region *io)
 	if (io->virt)
 		return 0;
 
-	flags = (io->mem_flags & ~PROT_MASK) | MAP_PHYS;
+	if (!io->physmap || *io->physmap == METAL_BAD_PHYS || !io->size)
+		return -EINVAL;
+
+	flags = (io->mem_flags & ~PROT_MASK) | MAP_PHYS | MAP_SHARED;
 	prot = (io->mem_flags & PROT_MASK) | PROT_READ | PROT_WRITE | PROT_NOCACHE;
-	addr = mmap64(NULL, io->size, prot, flags, NOFD, *((off64_t *)io->physmap));
+	addr = mmap64(NULL, io->size, prot, flags, NOFD, (off64_t)(*io->physmap));
 	if (addr == MAP_FAILED)
 		return -errno;
 
@@ -41,5 +44,6 @@ int metal_sys_io_mem_unmap(struct metal_io_region *io)
 	if (ret != 0)
 		return -errno;
 
+	io->virt = NULL;
 	return 0;
 }

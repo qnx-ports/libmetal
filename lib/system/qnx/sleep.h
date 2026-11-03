@@ -22,8 +22,6 @@
 extern "C" {
 #endif
 
-#define NS_PER_US (1000)
-
 static inline int __metal_sleep_usec(unsigned int usec)
 {
 	struct timespec ts;

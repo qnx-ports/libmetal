@@ -12,7 +12,7 @@
 #include <time.h>
 #include <metal/time.h>
 
-#define NS_PER_S        (1000 * 1000 * 1000)
+#define NS_PER_S 1000000000ULL
 
 unsigned long long metal_get_timestamp(void)
 {

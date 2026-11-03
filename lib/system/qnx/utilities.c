@@ -5,7 +5,7 @@
  */
 
 /**
- * @file	utilities.c
+ * @file	qnx/utilities.c
  * @brief	QNX libmetal utility functions.
  */
 

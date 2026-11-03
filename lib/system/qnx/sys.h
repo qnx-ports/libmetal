@@ -32,13 +32,19 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
+#include "log.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define METAL_INVALID_VADDR     NULL
-
 #define metal_yield() metal_cpu_yield()
+
+#define METAL_INIT_DEFAULTS				\
+{							\
+	.log_handler	= metal_qnx_log_handler,	\
+	.log_level	= METAL_LOG_INFO,		\
+}
 
 struct metal_device;
 
