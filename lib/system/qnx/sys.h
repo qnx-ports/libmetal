@@ -1,10 +1,10 @@
 /*
- * Copyright (c) 2025, BlackBerry Limited. All rights reserved.
+ * Copyright (c) 2026, BlackBerry Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-/*
+/**
  * @file	qnx/sys.h
  * @brief	QNX system primitives for libmetal.
  */
@@ -32,19 +32,19 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
+#include "log.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define METAL_INVALID_VADDR     NULL
-
 #define metal_yield() metal_cpu_yield()
 
-#define __qnx_get_physical_address(addr, len) ({ \
-	off64_t qnx_offset = 0; \
-	metal_assert(mem_offset64(addr, NOFD, len, &qnx_offset, NULL) == 0); \
-	(qnx_offset); \
-})
+#define METAL_INIT_DEFAULTS				\
+{							\
+	.log_handler	= metal_qnx_log_handler,	\
+	.log_level	= METAL_LOG_INFO,		\
+}
 
 struct metal_device;
 

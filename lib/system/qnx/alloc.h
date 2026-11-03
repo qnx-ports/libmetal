@@ -1,10 +1,10 @@
 /*
- * Copyright (c) 2025, BlackBerry Limited. All rights reserved.
+ * Copyright (c) 2026, BlackBerry Limited. All rights reserved.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-/*
+/**
  * @file	qnx/alloc.h
  * @brief	QNX libmetal memory allocation definitions.
  */
