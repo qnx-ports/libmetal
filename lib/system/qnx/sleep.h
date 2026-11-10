@@ -16,7 +16,7 @@
 #ifndef __METAL_QNX_SLEEP__H__
 #define __METAL_QNX_SLEEP__H__
 
-#include <time.h>
+#include <unistd.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -24,11 +24,7 @@ extern "C" {
 
 static inline int __metal_sleep_usec(unsigned int usec)
 {
-	struct timespec ts;
-
-	ts.tv_sec = usec / 1000000;
-	ts.tv_nsec = (usec % 1000000) * 1000;
-	return nanosleep(&ts, NULL);
+	return usleep(usec);
 }
 
 #ifdef __cplusplus
