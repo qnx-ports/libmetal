@@ -26,6 +26,7 @@ static int metal_shmem_map_contiguous(int fd, size_t size, struct metal_io_regio
 {
 	struct metal_io_region *io;
 	metal_phys_addr_t *phys;
+	off64_t offset64;
 	struct stat stat;
 	void *mem;
 	int ret;
@@ -47,6 +48,11 @@ static int metal_shmem_map_contiguous(int fd, size_t size, struct metal_io_regio
 				  strerror(errno));
 			return -errno;
 		}
+	} else if ((size_t)stat.st_size < size) {
+		metal_log(METAL_LOG_ERROR,
+			  "existing shmem size %lld is smaller than requested %zu\n",
+			  (long long)stat.st_size, size);
+		return -EINVAL;
 	}
 
 	ret = metal_map(fd, 0, size, 0, 0, &mem);
@@ -66,9 +72,12 @@ static int metal_shmem_map_contiguous(int fd, size_t size, struct metal_io_regio
 		return -ENOMEM;
 	}
 
-	ret = mem_offset64(mem, NOFD, size, (off64_t *)phys, NULL);
-	if (ret)
-		*phys = METAL_BAD_OFFSET;
+	if (mem_offset64(mem, NOFD, size, &offset64, NULL) == 0) {
+		*phys = (metal_phys_addr_t)offset64;
+	} else {
+		free(phys);
+		phys = NULL;
+	}
 
 	metal_io_init(io, mem, phys, size, (unsigned int)-1, 0,
 				  &metal_shmem_io_ops);
